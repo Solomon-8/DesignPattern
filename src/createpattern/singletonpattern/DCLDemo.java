@@ -1,8 +1,11 @@
 package createpattern.singletonpattern;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+
 /**
  * @author Solomon
- * @date 2018/9/26
+ * @date 2018/10/21
  * if you founded any bugs in my code
  * look at my face
  * that's a feature
@@ -24,17 +27,23 @@ package createpattern.singletonpattern;
  * ────▀▄▒▒▒▒▒▒▒▒▒▒▄▄▄▀▒▒▒▒▄▀───
  * ───▐▀▒▀▄▄▄▄▄▄▀▀▀▒▒▒▒▒▄▄▀─────
  * ──▐▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▀▀────────
+ * " "
  */
-public class Demo {
+public class DCLDemo {
+    private volatile static DCLDemo dclDemo;
 
-    private Demo demo;
+    private DCLDemo(){}
 
-    private Demo(){}
 
-    public Demo getInstance(){
-        if (demo == null){
-            demo = new Demo();
+    public static DCLDemo getInstance(){
+        if (dclDemo == null){
+            synchronized (DCLDemo.class){
+                if (dclDemo == null){
+                    dclDemo = new DCLDemo();
+                }
+            }
         }
-        return demo;
+        return dclDemo;
     }
+
 }
