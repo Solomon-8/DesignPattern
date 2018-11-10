@@ -10,6 +10,7 @@
 
 [design_patterns](https://github.com/me115/design_patterns)
 
-
+---
+#### 今天在看raft，part 1 有涉及复制状态机，添加了一些状态机的代码.
 
 立志做一个咸鱼怪
