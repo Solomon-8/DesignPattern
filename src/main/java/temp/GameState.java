@@ -39,15 +39,27 @@ public final class GameState {
                 if (move.getCard() == InfluenceCard.DOUBLE){
                     Coordinates first = move.getFirstMove();
                     Coordinates second = move.getSecondMove();
-                    return isAvailable(player,first.getX(),first.getY()) && isAvailable(player,second.getX(),second.getY());
+                    boolean result = isAvailable(player,first.getX(),first.getY()) && isAvailable(player,second.getX(),second.getY());
+                    if (result){
+                        getAvailableInfluenceCards(player).remove(InfluenceCard.DOUBLE);
+                    }
+                    return result;
                 }
                 if (move.getCard() == InfluenceCard.REPLACEMENT){
                     Coordinates replace = move.getFirstMove();
-                    return isAvailable(player,replace.getX(),replace.getY());
+                    boolean result = isAvailable(player,replace.getX(),replace.getY());
+                    if (result){
+                        getAvailableInfluenceCards(player).remove(InfluenceCard.REPLACEMENT);
+                    }
+                    return result;
                 }
                 if (move.getCard() == InfluenceCard.FREEDOM){
                     Coordinates freedom = move.getFirstMove();
-                    return BOARD[freedom.getX()][freedom.getY()] != 0;
+                    boolean result = BOARD[freedom.getX()][freedom.getY()] != 0;
+                    if (result){
+                        getAvailableInfluenceCards(player).remove(InfluenceCard.FREEDOM);
+                    }
+                    return result;
                 }
             }
 
@@ -62,6 +74,7 @@ public final class GameState {
         }
         if (flag){
             Coordinates coordinates = move.getFirstMove();
+            System.out.println(coordinates);
             return isAvailable(player, coordinates.getX(), coordinates.getY());
         } else if (BOARD[move.getFirstMove().getX()][move.getFirstMove().getY()] == 0){
             return true;
@@ -76,14 +89,20 @@ public final class GameState {
     }
 
     public boolean isGameEnd(){
-        boolean flag = false;
+        boolean target = true;
+        int cnt = 1;
         for (int i = 1; i <= PLAYER_NUMBER.get(); i++) {
             if (isAlive(i)){
-                flag = true;
-                break;
+                if (target){
+                    target = false;
+                }
+                cnt++;
             }
         }
-        return !flag;
+        if (cnt == PLAYER_NUMBER.get()){
+            return true;
+        }
+        return target;
     }
 
     public boolean isAlive(int player){
@@ -112,6 +131,11 @@ public final class GameState {
         }
         return result;
     }
+
+//    public static void main(String[] args) {
+//        BOARD = new int[][]{{1,2,0,0,0,0,0,0,0,0},{1,2,0,0,0,0,0,0,0,0},{1,2,0,0,0,0,0,0,0,0},{1,2,0,0,0,0,0,0,0,0},{1,2,0,0,0,0,0,0,0,0},{1,2,0,0,0,0,0,0,0,0}};
+//        System.out.println(isAlive(1));
+//    }
 
     public boolean isAvailable(int player,int x,int y){
         boolean flag;

@@ -74,7 +74,7 @@ public class ServerHandler implements Runnable {
                     //observe the room state
                     observeTheRoom(writer);
                     writer.flush();
-                    // TODO: 2018/11/10 enter the game logic
+                    //enter the game logic
                     gameStart(player);
                 } else {
                     writer.write("you input isn't equal ready,so see you next time.");
@@ -157,6 +157,20 @@ public class ServerHandler implements Runnable {
         GameState gameState = new GameState();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
         while (true){
+            boolean flag = gameState.isAlive(player.getPlayerId());
+            System.out.println("flag:" + flag + ",id:" + player.getPlayerId());
+            if (!flag){
+                writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+                writer.write("you were dead.");
+                writer.flush();
+                break;
+            }
+            if (gameState.isGameEnd()){
+                int winner = gameState.getWinner();
+                writer.write("game end,the winner is " + winner);
+                writer.flush();
+                break;
+            }
             int curPlay = gameState.getCurPlayerId();
             int myId = game.getMyPlayerId();
             if (curPlay == myId){
@@ -171,21 +185,16 @@ public class ServerHandler implements Runnable {
                 writer.newLine();
                 writer.flush();
             }
-            if (!gameState.isAlive(player.getPlayerId())){
-                writer.write("you were dead.");
-                writer.flush();
-            }
-            if (gameState.isGameEnd()){
-                int winner = gameState.getWinner();
-                writer.write("game end,the winner is " + winner);
-                writer.flush();
-                break;
-            }
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+        if (gameState.isGameEnd()){
+            int winner = gameState.getWinner();
+            writer.write("game end,the winner is " + winner);
+            writer.flush();
         }
     }
 }

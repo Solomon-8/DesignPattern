@@ -59,14 +59,14 @@ public class SocketImpl implements PlayerLogic {
             writer.newLine();
         }
         writer.write("please input your movement(if you want to use card input 0).");
-        writer.write("   example : 0,1 is mean put your stone in 0,1 : ");
+        writer.write("   example : 0,1 is mean put your stone in 0,1:");
         writer.flush();
         while (true){
             BufferedReader reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
             String firstLine = reader.readLine();
             System.out.println(firstLine);
             if ("0".equals(firstLine)){
-                // TODO: 2018/11/10 go into card logic
+                //go into card logic
                 writer.write("current cards:" );
                 writer.newLine();
                 writer.write(player.getCards().toString());
@@ -122,7 +122,14 @@ public class SocketImpl implements PlayerLogic {
                     while (true){
                         reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
                         String[] coordinate = reader.readLine().split(",");
-                        Move step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                        Move step = new Move(null,new Coordinates(-1,-1),null);
+                        try {
+                            step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                        } catch (NumberFormatException e){
+                            writer.write("it's seem you input an illegal character.execute exit operation.");
+                            writer.newLine();
+                            writer.flush();
+                        }
                         if (game.isMoveAllowed(step,player.getPlayerId())){
                             GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = 0;
                             return step;
