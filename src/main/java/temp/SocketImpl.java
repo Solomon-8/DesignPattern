@@ -117,7 +117,7 @@ public class SocketImpl implements PlayerLogic {
                         }
                     }
                 } else if ("3".equals(content)){
-                    writer.write("input the position you want to freedom :  ");
+                    writer.write("input the position you want to free :  ");
                     writer.flush();
                     while (true){
                         reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
