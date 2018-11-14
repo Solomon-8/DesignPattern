@@ -2,6 +2,7 @@ package temp;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * @author Solomon
@@ -180,6 +181,93 @@ public class ServerHandler implements Runnable {
                 System.out.println(content);
                 if ("0".equals(content)){
                     //go into card logic
+                    writer.write("current cards:" );
+                    writer.newLine();
+                    writer.write(player.getCards().toString());
+                    writer.newLine();
+                    writer.write("Double(1),Replacement(2),Freedom(3),exit(0),please choose.");
+                    writer.flush();
+                    reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                    String input = reader.readLine();
+                    if ("1".equals(input)){
+                        writer.write("input two position separate by white space.example : 0,1 0,2 : ");
+                        writer.flush();
+                        while (true){
+                            reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                            String[] container = reader.readLine().split(" ");
+                            System.out.println(Arrays.toString(container));
+                            String[] coordinateA = container[0].split(",");
+                            String[] coordinateB = container[1].split(",");
+                            Move first;
+                            try {
+                                first = new Move(InfluenceCard.DOUBLE,
+                                        new Coordinates(Integer.parseInt(coordinateA[0]),Integer.parseInt(coordinateA[1])),
+                                        new Coordinates(Integer.parseInt(coordinateB[0]),Integer.parseInt(coordinateB[1])));
+                            } catch (Exception e){
+                                writer.write("your input is illegal.");
+                                continue;
+                            }
+                            if (gameState.isMoveAllowed(first,player.getPlayerId())){
+                                GameState.BOARD[first.getFirstMove().getX()][first.getFirstMove().getY()] = player.getPlayerId();
+                                GameState.BOARD[first.getSecondMove().getX()][first.getSecondMove().getY()] = player.getPlayerId();
+                                break;
+                            } else {
+                                writer.write("your input is illegal");
+                                writer.flush();
+                            }
+                        }
+                    } else if ("2".equals(input)){
+                        writer.write("input the position you want to replace : ");
+                        writer.flush();
+                        while (true){
+                            reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                            String[] coordinate = reader.readLine().split(",");
+                            Move step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                            if (gameState.isMoveAllowed(step,player.getPlayerId())){
+                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = player.getPlayerId();
+                                break;
+                            } else {
+                                writer.write("your input is illegal.");
+                                writer.flush();
+                            }
+                        }
+                    } else if ("3".equals(input)){
+                        writer.write("input the position you want to free :  ");
+                        writer.flush();
+                        while (true){
+                            reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                            String[] coordinate = reader.readLine().split(",");
+                            Move step = new Move(null,new Coordinates(-1,-1),null);
+                            try {
+                                step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                            } catch (NumberFormatException e){
+                                writer.write("it's seem you input an illegal character.execute exit operation.");
+                                writer.newLine();
+                                writer.flush();
+                                continue;
+                            }
+                            if (gameState.isMoveAllowed(step,player.getPlayerId())){
+                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = 0;
+                                break;
+                            } else {
+                                writer.write("your input is illegal.");
+                                writer.flush();
+                            }
+                        }
+                    } else if ("0".equals(input)){
+                        writer.write("please input your movement(if you want to use card input 0).");
+                        writer.write("   example : 0,1 is mean put your stone in 0,1");
+                        writer.newLine();
+                        writer.flush();
+                    } else {
+                        writer.write("it's seem you input an illegal character.execute exit operation.");
+                        writer.newLine();
+                        writer.write("please input your movement(if you want to use card input 0).");
+                        writer.write("   example : 0,1 is mean put your stone in 0,1");
+                        writer.newLine();
+                        writer.flush();
+                    }
+                    bot.makeMove(gameState);
                 } else {
                     //normal logic
                     try {
