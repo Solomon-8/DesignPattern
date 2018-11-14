@@ -32,6 +32,12 @@ public final class GameState {
 
     // Checks if the specified move is allowed for the given player.
     public boolean isMoveAllowed(Move move, int player) {
+        if (move.getFirstMove().getX() >=6 || move.getFirstMove().getX() < 0 || move.getFirstMove().getY() >= 10 || move.getFirstMove().getY() < 0){
+            return false;
+        }
+        if (move.getSecondMove() != null && (move.getSecondMove().getX() >= 6 || move.getSecondMove().getX() < 0 || move.getSecondMove().getY() >= 10 || move.getSecondMove().getY() < 0)){
+            return false;
+        }
         if (move.getCard() != null){
             if (!getAvailableInfluenceCards(player).contains(move.getCard())){
                 return false;
@@ -75,6 +81,9 @@ public final class GameState {
         if (flag){
             Coordinates coordinates = move.getFirstMove();
             System.out.println(coordinates);
+            if (BOARD[coordinates.getX()][coordinates.getY()] != 0){
+                return false;
+            }
             return isAvailable(player, coordinates.getX(), coordinates.getY());
         } else if (BOARD[move.getFirstMove().getX()][move.getFirstMove().getY()] == 0){
             return true;

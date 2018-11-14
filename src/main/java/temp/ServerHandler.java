@@ -153,48 +153,100 @@ public class ServerHandler implements Runnable {
     }
 
     private void gameStart(Player player) throws IOException {
-        SocketImpl game = new SocketImpl(player);
         GameState gameState = new GameState();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
-        while (true){
-            boolean flag = gameState.isAlive(player.getPlayerId());
-            System.out.println("flag:" + flag + ",id:" + player.getPlayerId());
-            if (!flag){
-                writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
-                writer.write("you were dead.");
+        if (GameState.PLAYER_NUMBER.get() == 1){
+            //go into bot logic
+            BotImpl bot = new BotImpl(player);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+            writer.write("game start,please input(if you want to use a card input 0) :");
+            writer.newLine();
+            writer.flush();
+            while (true){
+                if (gameState.isGameEnd()){
+                    writer.write("game over.");
+                    writer.flush();
+                    break;
+                }
+                int[][] board = GameState.BOARD;
+                for (int[] i : board){
+                    for (int j : i){
+                        writer.write(j + " ");
+                    }
+                    writer.newLine();
+                }
                 writer.flush();
-                break;
+                String content = reader.readLine();
+                System.out.println(content);
+                if ("0".equals(content)){
+                    //go into card logic
+                } else {
+                    //normal logic
+                    try {
+                        String[] result = content.split(",");
+                        int x = Integer.parseInt(result[0]);
+                        int y = Integer.parseInt(result[1]);
+                        Move move = new Move(null,new Coordinates(x,y),null);
+                        if (gameState.isMoveAllowed(move,player.getPlayerId())){
+                            GameState.BOARD[x][y] = 1;
+                            bot.makeMove(gameState);
+                            writer.write("it's your turn.");
+                            writer.newLine();
+                            writer.flush();
+                        } else {
+                            writer.write("your operation is illegal,try it again.");
+                            writer.newLine();
+                            writer.flush();
+                        }
+                    } catch (NumberFormatException e) {
+                        writer.write("it's seems your input contains illegal character,try it again.");
+                        writer.newLine();
+                        writer.flush();
+                    }
+                }
+            }
+        } else {
+            SocketImpl game = new SocketImpl(player);
+            while (true){
+                boolean flag = gameState.isAlive(player.getPlayerId());
+                System.out.println("flag:" + flag + ",id:" + player.getPlayerId());
+                if (!flag){
+                    writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
+                    writer.write("you were dead.");
+                    writer.flush();
+                    break;
+                }
+                if (gameState.isGameEnd()){
+                    int winner = gameState.getWinner();
+                    writer.write("game end,the winner is " + winner);
+                    writer.flush();
+                    break;
+                }
+                int curPlay = gameState.getCurPlayerId();
+                int myId = game.getMyPlayerId();
+                if (curPlay == myId){
+                    game.makeMove(gameState);
+                    if (curPlay == GameState.getPlayerNumber()){
+                        GameState.CUR_PLAYER_ID.compareAndSet(curPlay,1);
+                    } else {
+                        GameState.CUR_PLAYER_ID.compareAndSet(curPlay,curPlay+1);
+                    }
+                } else {
+                    writer.write("it's not your turn,please wait.");
+                    writer.newLine();
+                    writer.flush();
+                }
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             if (gameState.isGameEnd()){
                 int winner = gameState.getWinner();
                 writer.write("game end,the winner is " + winner);
                 writer.flush();
-                break;
             }
-            int curPlay = gameState.getCurPlayerId();
-            int myId = game.getMyPlayerId();
-            if (curPlay == myId){
-                game.makeMove(gameState);
-                if (curPlay == GameState.getPlayerNumber()){
-                    GameState.CUR_PLAYER_ID.compareAndSet(curPlay,1);
-                } else {
-                    GameState.CUR_PLAYER_ID.compareAndSet(curPlay,curPlay+1);
-                }
-            } else {
-                writer.write("it's not your turn,please wait.");
-                writer.newLine();
-                writer.flush();
-            }
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        if (gameState.isGameEnd()){
-            int winner = gameState.getWinner();
-            writer.write("game end,the winner is " + winner);
-            writer.flush();
         }
     }
 }
