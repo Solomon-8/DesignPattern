@@ -3,6 +3,7 @@ package temp;
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * @author Solomon
@@ -157,6 +158,8 @@ public class ServerHandler implements Runnable {
         GameState gameState = new GameState();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
         if (GameState.PLAYER_NUMBER.get() == 1){
+            //init gameState
+            initChessBoard();
             //go into bot logic
             BotImpl bot = new BotImpl(player);
             BufferedReader reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
@@ -295,6 +298,10 @@ public class ServerHandler implements Runnable {
             }
         } else {
             SocketImpl game = new SocketImpl(player);
+            if (player.getPlayerId() == 1){
+                //init gameState
+                initChessBoard();
+            }
             while (true){
                 boolean flag = gameState.isAlive(player.getPlayerId());
                 System.out.println("flag:" + flag + ",id:" + player.getPlayerId());
@@ -334,6 +341,20 @@ public class ServerHandler implements Runnable {
                 int winner = gameState.getWinner();
                 writer.write("game end,the winner is " + winner);
                 writer.flush();
+            }
+        }
+    }
+
+
+    private void initChessBoard(){
+        int number = GameState.PLAYER_NUMBER.get();
+        Random random = new Random();
+        for (int i = 0; i < number; ) {
+            int x = random.nextInt(6);
+            int y = random.nextInt(10);
+            if (GameState.BOARD[x][y] == 0){
+                GameState.BOARD[x][y] = i + 1;
+                i++;
             }
         }
     }

@@ -39,7 +39,7 @@ public final class GameState {
             return false;
         }
         if (move.getCard() != null){
-            if (!getAvailableInfluenceCards(player).contains(move.getCard())){
+            if (!PLAYERS.get(player).getCards().contains(move.getCard())){
                 return false;
             } else {
                 if (move.getCard() == InfluenceCard.DOUBLE){
@@ -47,7 +47,9 @@ public final class GameState {
                     Coordinates second = move.getSecondMove();
                     boolean result = isAvailable(player,first.getX(),first.getY()) && isAvailable(player,second.getX(),second.getY());
                     if (result){
-                        getAvailableInfluenceCards(player).remove(InfluenceCard.DOUBLE);
+                        System.out.println(PLAYERS.get(player).getCards());
+                        PLAYERS.get(player).getCards().remove(InfluenceCard.DOUBLE);
+                        System.out.println(PLAYERS.get(player).getCards());
                     }
                     return result;
                 }
@@ -55,15 +57,15 @@ public final class GameState {
                     Coordinates replace = move.getFirstMove();
                     boolean result = isAvailable(player,replace.getX(),replace.getY());
                     if (result){
-                        getAvailableInfluenceCards(player).remove(InfluenceCard.REPLACEMENT);
+                        PLAYERS.get(player).getCards().remove(InfluenceCard.REPLACEMENT);
                     }
                     return result;
                 }
                 if (move.getCard() == InfluenceCard.FREEDOM){
                     Coordinates freedom = move.getFirstMove();
-                    boolean result = BOARD[freedom.getX()][freedom.getY()] != 0;
+                    boolean result = BOARD[freedom.getX()][freedom.getY()] == 0;
                     if (result){
-                        getAvailableInfluenceCards(player).remove(InfluenceCard.FREEDOM);
+                        PLAYERS.get(player).getCards().remove(InfluenceCard.FREEDOM);
                     }
                     return result;
                 }

@@ -79,25 +79,26 @@ public class SocketImpl implements PlayerLogic {
                     writer.write("input two position separate by white space.example : 0,1 0,2 : ");
                     writer.flush();
                     while (true){
-                        reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
-                        String[] container = reader.readLine().split(" ");
-                        String[] coordinateA = container[0].split(",");
-                        String[] coordinateB = container[1].split(",");
-                        Move first;
                         try {
+                            reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                            String[] container = reader.readLine().split(" ");
+                            String[] coordinateA = container[0].split(",");
+                            String[] coordinateB = container[1].split(",");
+                            Move first;
                             first = new Move(InfluenceCard.DOUBLE,
                                     new Coordinates(Integer.parseInt(coordinateA[0]),Integer.parseInt(coordinateA[1])),
                                     new Coordinates(Integer.parseInt(coordinateB[0]),Integer.parseInt(coordinateB[1])));
+                            if (game.isMoveAllowed(first,player.getPlayerId())){
+                                GameState.BOARD[first.getFirstMove().getX()][first.getFirstMove().getY()] = player.getPlayerId();
+                                GameState.BOARD[first.getSecondMove().getX()][first.getSecondMove().getY()] = player.getPlayerId();
+                                return first;
+                            } else {
+                                writer.write("your input is illegal,please input again:");
+                                writer.flush();
+                            }
                         } catch (Exception e){
-                            writer.write("your input is illegal.");
-                            continue;
-                        }
-                        if (game.isMoveAllowed(first,player.getPlayerId())){
-                            GameState.BOARD[first.getFirstMove().getX()][first.getFirstMove().getY()] = player.getPlayerId();
-                            GameState.BOARD[first.getSecondMove().getX()][first.getSecondMove().getY()] = player.getPlayerId();
-                            return first;
-                        } else {
-                            writer.write("your input is illegal.");
+                            e.printStackTrace();
+                            writer.write("your input is illegal.please input again:");
                             writer.flush();
                         }
                     }
@@ -105,14 +106,20 @@ public class SocketImpl implements PlayerLogic {
                     writer.write("input the position you want to replace : ");
                     writer.flush();
                     while (true){
-                        reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
-                        String[] coordinate = reader.readLine().split(",");
-                        Move step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
-                        if (game.isMoveAllowed(step,player.getPlayerId())){
-                            GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = player.getPlayerId();
-                            return step;
-                        } else {
-                            writer.write("your input is illegal.");
+                        try {
+                            reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                            String[] coordinate = reader.readLine().split(",");
+                            Move step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                            if (game.isMoveAllowed(step,player.getPlayerId())){
+                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = player.getPlayerId();
+                                return step;
+                            } else {
+                                writer.write("your input is illegal,please input again:");
+                                writer.flush();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            writer.write("your input is illegal.please input again:");
                             writer.flush();
                         }
                     }
@@ -120,21 +127,21 @@ public class SocketImpl implements PlayerLogic {
                     writer.write("input the position you want to free :  ");
                     writer.flush();
                     while (true){
-                        reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
-                        String[] coordinate = reader.readLine().split(",");
-                        Move step = new Move(null,new Coordinates(-1,-1),null);
                         try {
-                            step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                            reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
+                            String[] coordinate = reader.readLine().split(",");
+                            Move step = new Move(null,new Coordinates(-1,-1),null);
+                            step = new Move(InfluenceCard.FREEDOM,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
+                            if (game.isMoveAllowed(step,player.getPlayerId())){
+                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = player.getPlayerId();
+                                return step;
+                            } else {
+                                writer.write("your input is illegal..please input again:");
+                                writer.flush();
+                            }
                         } catch (NumberFormatException e){
                             writer.write("it's seem you input an illegal character.execute exit operation.");
                             writer.newLine();
-                            writer.flush();
-                        }
-                        if (game.isMoveAllowed(step,player.getPlayerId())){
-                            GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = 0;
-                            return step;
-                        } else {
-                            writer.write("your input is illegal.");
                             writer.flush();
                         }
                     }
