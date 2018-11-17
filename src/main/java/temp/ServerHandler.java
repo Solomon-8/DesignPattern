@@ -159,7 +159,7 @@ public class ServerHandler implements Runnable {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(player.getSocket().getOutputStream()));
         if (GameState.PLAYER_NUMBER.get() == 1){
             //init gameState
-            initChessBoard();
+            initChessBoard(true);
             //go into bot logic
             BotImpl bot = new BotImpl(player);
             BufferedReader reader = new BufferedReader(new InputStreamReader(player.getSocket().getInputStream()));
@@ -227,7 +227,7 @@ public class ServerHandler implements Runnable {
                             String[] coordinate = reader.readLine().split(",");
                             Move step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
                             if (gameState.isMoveAllowed(step,player.getPlayerId())){
-                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = player.getPlayerId();
+                                GameState.BOARD[step.getFirstMove().getX()][step.getFirstMove().getY()] = player.getPlayerId();
                                 break;
                             } else {
                                 writer.write("your input is illegal.");
@@ -250,7 +250,7 @@ public class ServerHandler implements Runnable {
                                 continue;
                             }
                             if (gameState.isMoveAllowed(step,player.getPlayerId())){
-                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = 0;
+                                GameState.BOARD[step.getFirstMove().getX()][step.getFirstMove().getY()] = 0;
                                 break;
                             } else {
                                 writer.write("your input is illegal.");
@@ -300,7 +300,7 @@ public class ServerHandler implements Runnable {
             SocketImpl game = new SocketImpl(player);
             if (player.getPlayerId() == 1){
                 //init gameState
-                initChessBoard();
+                initChessBoard(false);
             }
             while (true){
                 boolean flag = gameState.isAlive(player.getPlayerId());
@@ -346,7 +346,7 @@ public class ServerHandler implements Runnable {
     }
 
 
-    private void initChessBoard(){
+    private void initChessBoard(boolean isBot){
         int number = GameState.PLAYER_NUMBER.get();
         Random random = new Random();
         for (int i = 0; i < number; ) {

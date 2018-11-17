@@ -111,7 +111,7 @@ public class SocketImpl implements PlayerLogic {
                             String[] coordinate = reader.readLine().split(",");
                             Move step = new Move(InfluenceCard.REPLACEMENT,new Coordinates(Integer.parseInt(coordinate[0]),Integer.parseInt(coordinate[1])),null);
                             if (game.isMoveAllowed(step,player.getPlayerId())){
-                                GameState.BOARD[step.getFirstMove().getY()][step.getFirstMove().getY()] = player.getPlayerId();
+                                GameState.BOARD[step.getFirstMove().getX()][step.getFirstMove().getY()] = player.getPlayerId();
                                 return step;
                             } else {
                                 writer.write("your input is illegal,please input again:");

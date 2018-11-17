@@ -19,4 +19,13 @@ public final class Move
     public Coordinates getFirstMove() { return firstMove; }
     public InfluenceCard getCard() { return card; }
     public Coordinates getSecondMove() { return secondMove; }
+
+    @Override
+    public String toString() {
+        return "Move{" +
+                "card=" + card +
+                ", firstMove=" + firstMove +
+                ", secondMove=" + secondMove +
+                '}';
+    }
 }

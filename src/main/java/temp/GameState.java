@@ -32,6 +32,7 @@ public final class GameState {
 
     // Checks if the specified move is allowed for the given player.
     public boolean isMoveAllowed(Move move, int player) {
+        System.out.println("current move is:"+move);
         if (move.getFirstMove().getX() >=6 || move.getFirstMove().getX() < 0 || move.getFirstMove().getY() >= 10 || move.getFirstMove().getY() < 0){
             return false;
         }
@@ -39,7 +40,7 @@ public final class GameState {
             return false;
         }
         if (move.getCard() != null){
-            if (!PLAYERS.get(player).getCards().contains(move.getCard())){
+            if (!PLAYERS.get(player-1).getCards().contains(move.getCard())){
                 return false;
             } else {
                 if (move.getCard() == InfluenceCard.DOUBLE){
@@ -48,7 +49,7 @@ public final class GameState {
                     boolean result = isAvailable(player,first.getX(),first.getY()) && isAvailable(player,second.getX(),second.getY());
                     if (result){
                         System.out.println(PLAYERS.get(player).getCards());
-                        PLAYERS.get(player).getCards().remove(InfluenceCard.DOUBLE);
+                        PLAYERS.get(player-1).getCards().remove(InfluenceCard.DOUBLE);
                         System.out.println(PLAYERS.get(player).getCards());
                     }
                     return result;
@@ -57,7 +58,7 @@ public final class GameState {
                     Coordinates replace = move.getFirstMove();
                     boolean result = isAvailable(player,replace.getX(),replace.getY());
                     if (result){
-                        PLAYERS.get(player).getCards().remove(InfluenceCard.REPLACEMENT);
+                        PLAYERS.get(player-1).getCards().remove(InfluenceCard.REPLACEMENT);
                     }
                     return result;
                 }
@@ -65,7 +66,7 @@ public final class GameState {
                     Coordinates freedom = move.getFirstMove();
                     boolean result = BOARD[freedom.getX()][freedom.getY()] == 0;
                     if (result){
-                        PLAYERS.get(player).getCards().remove(InfluenceCard.FREEDOM);
+                        PLAYERS.get(player-1).getCards().remove(InfluenceCard.FREEDOM);
                     }
                     return result;
                 }
